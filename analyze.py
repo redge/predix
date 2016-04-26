@@ -6,6 +6,7 @@ from r import RedisManager
 
 
 def get_data():
+
     df1 = pd.read_excel(open('E&T 5 min interval data_updated.xls','rb'), sheetname=0)
 
     temp = pd.DatetimeIndex(df1['Time'])
@@ -21,9 +22,10 @@ def get_data():
     #df1['Total_Cost'] = np.nan
 
     #combine 1.E & 2.E
-    df1['Total_Combined_kW'] = df1['Total kW 1.E & T (kW)'] + df1['Total kW 2.E & T (kW)']
+    df1['kW'] = df1['Total kW 1.E & T (kW)'] + df1['Total kW 2.E & T (kW)']
 
     df1 = df1.drop(['Total kW 1.E & T (kW)', 'Total kW 2.E & T (kW)', 'Time'], 1)
+
     #df1.info()
     df20160316 = pd.read_excel(open('Hourly Interval Costs - 3.16-4.6.xlsx','rb'), sheetname=1)
     df20160316 = df20160316.drop(24)
@@ -33,14 +35,14 @@ def get_data():
 
     temp = '3/16/16 ' + temp
     temp = pd.DatetimeIndex(temp)
-    df20160316 = df20160316.drop(['Time stamp', 'Energy + other cost', 'RTP cost', 'Demand cost'], axis=1)
+    df20160316 = df20160316.drop(['Time stamp', 'RTP cost', 'Demand cost'], axis=1)
 
     df20160316['Date_Time'] = temp
     df20160316['Day_Of_Week'] = temp.weekday
     df20160316['Hours'] = temp.hour
     df20160316['Date'] = temp.date
 
-    cols = ['Date_Time', 'Day_Of_Week', 'Hours', 'Date', 'Total Cost']
+    cols = ['Date_Time', 'Day_Of_Week', 'Hours', 'Date', 'Energy + other cost', 'Total Cost']
     df20160316 = df20160316[cols]
 
     #df20160316.head(60)
@@ -53,14 +55,15 @@ def get_data():
 
     temp = '3/23/16 ' + temp
     temp = pd.DatetimeIndex(temp)
-    df20160323 = df20160323.drop(['Time stamp', 'Energy + other cost', 'RTP cost', 'Demand cost'], axis=1)
+
+    df20160323 = df20160323.drop(['Time stamp', 'RTP cost', 'Demand cost'], axis=1)
 
     df20160323['Date_Time'] = temp
     df20160323['Day_Of_Week'] = temp.weekday
     df20160323['Hours'] = temp.hour
     df20160323['Date'] = temp.date
 
-    cols = ['Date_Time', 'Day_Of_Week', 'Hours', 'Date', 'Total Cost']
+    cols = ['Date_Time', 'Day_Of_Week', 'Hours', 'Date', 'Energy + other cost','Total Cost']
     df20160323 = df20160323[cols]
 
     #df20160323.head(24)
@@ -73,14 +76,14 @@ def get_data():
 
     temp = '3/30/16 ' + temp
     temp = pd.DatetimeIndex(temp)
-    df20160330 = df20160330.drop(['Time stamp', 'Energy + other cost', 'RTP cost', 'Demand cost'], axis=1)
+
+    df20160330 = df20160330.drop(['Time stamp', 'RTP cost', 'Demand cost'], axis=1)
 
     df20160330['Date_Time'] = temp
     df20160330['Day_Of_Week'] = temp.weekday
     df20160330['Hours'] = temp.hour
     df20160330['Date'] = temp.date
 
-    cols = ['Date_Time', 'Day_Of_Week', 'Hours', 'Date', 'Total Cost']
     df20160330 = df20160330[cols]
 
     #df20160330.head(24)
@@ -94,12 +97,14 @@ def get_data():
 
     temp = '4/06/16 ' + temp
     temp = pd.DatetimeIndex(temp)
-    df20160406 = df20160406.drop(['Time stamp', 'Energy + other cost', 'RTP cost', 'Demand cost'], axis=1)
+
+    df20160406 = df20160406.drop(['Time stamp', 'RTP cost', 'Demand cost'], axis=1)
 
     df20160406['Date_Time'] = temp
+    df20160406['Day_Of_Week'] = temp.weekday
     df20160406['Hours'] = temp.hour
+    df20160406['Date'] = temp.date
 
-    cols = ['Date_Time', 'Hours', 'Total Cost']
     df20160406 = df20160406[cols]
 
     #df20160406.head(24)
@@ -107,13 +112,12 @@ def get_data():
     df2 = pd.concat([df20160316, df20160323, df20160330, df20160406], axis=0)
 
     df2['Total_Cost'] = df2['Total Cost']
-    #df2['Total_Combined_kW'] = np.nan
+    #df2['kW'] = np.nan
     df2 = df2.drop('Total Cost', axis = 1)
     #df2.head(2)
-
     result = df1.merge(df2, on=['Date_Time','Day_Of_Week','Hours','Date'], how='left')
 
-    dff =result.groupby(pd.TimeGrouper(key='Date_Time', freq='H')).apply(lambda x: x[['Total_Combined_kW']].sum())
+    dff =result.groupby(pd.TimeGrouper(key='Date_Time', freq='H')).apply(lambda x: x[['kW']].sum())
 
     df3 = dff.to_frame()
     #df3.info()
@@ -121,14 +125,14 @@ def get_data():
     df3.index = df3.index.droplevel(1)
     df3=df3.reset_index()
 
-    df3.columns = ['Date_Time', 'Total_Combined_kW']
+    df3.columns = ['Date_Time', 'kW']
     df3.head(2)
 
-    df3['Avg_Combined_kW_Hour'] = df3['Total_Combined_kW'] / 12
+    df3['Avg_Combined_kW_Hour'] = df3['kW'] / 12
 
     result = df2.merge(df3, how='left')
 
-    result = result.drop(['Total_Combined_kW', 'Date'], axis = 1)
+    result = result.drop(['kW', 'Date'], axis = 1)
 
     for i in range(24):
         temp = result.loc[(result['Hours'] == i), 'Avg_Combined_kW_Hour'].median()
@@ -138,7 +142,7 @@ def get_data():
     temp = pd.DatetimeIndex(df1['Date_Time'])
     df1['Hour'] = temp.hour
 
-    cols = ['Date_Time','Hour','Total_Combined_kW']
+    cols = ['Date_Time','Hour','kW']
     df1 = df1[cols]
 
     #result.Date_Time.to_pydatetime()
@@ -148,64 +152,83 @@ def get_data():
     #result['Date'] = temp.date.values
     #result.info()
     result['Hour'] = temp.hour
-    #result.info()
 
     result = result.drop(['Day_Of_Week'], axis = 1)
-    cols = ['Date_Time','Hour','Avg_Combined_kW_Hour', 'Total_Cost']
-    result = result[cols]
 
-    df2_values = result.values
+    cols1 = ['Date_Time','Hour','Avg_Combined_kW_Hour', 'Total_Cost']
+    result1 = result[cols1]
+
+    m1_values = result1.values
     #df2_values.shape
 
-    X_Fit = df2_values[:,1:3]
+    X1_Fit = m1_values[:,1:3]
     #X_Fit.shape
 
-    Y_Fit = df2_values[:,3:]
+    Y1_Fit = m1_values[:,3:]
     #Y_Fit.shape
 
-
     # prepare model and set parameters
-    regr = linear_model.LinearRegression()
+    regr1 = linear_model.LinearRegression()
 
     # Train the model using the training sets
-    regr.fit(X_Fit, Y_Fit)
+    regr1.fit(X1_Fit, Y1_Fit)
+
+    cols2 = ['Date_Time','Hour','Avg_Combined_kW_Hour', 'Energy + other cost']
+    result2 = result[cols2]
+
+    m2_values = result2.values
+    #df2_values.shape
+
+    X2_Fit = m2_values[:,1:3]
+    #X_Fit.shape
+
+    Y2_Fit = m2_values[:,3:]
+    #Y_Fit.shape
+
+    # prepare model and set parameters
+    regr2 = linear_model.LinearRegression()
+
+    # Train the model using the training sets
+    regr2.fit(X2_Fit, Y2_Fit)
 
     df3 = pd.read_excel(open('E&T 5 min interval data_updated.xls','rb'), sheetname=1)
     temp = pd.DatetimeIndex(df3['Time'])
-    
+        
     df3['Date_Time'] = temp
     df3['Hour'] = temp.hour
-    df3['Total_Combined_kW'] = np.nan
+    df3['kW'] = np.nan
 
     df3 = df3.drop(['Total kW 1.E & T (kW)', 'Total kW 2.E & T (kW)', 'Time'], axis = 1)
 
     for i in range(24):
-        temp = df1.loc[(df1['Hour'] == i), 'Total_Combined_kW'].median()
-        df3.loc[df3['Hour'] == i, 'Total_Combined_kW'] = temp
+        temp = df1.loc[(df1['Hour'] == i), 'kW'].median()
+        df3.loc[df3['Hour'] == i, 'kW'] = temp
 
     df4 = pd.concat([df3, df1], axis=0)
 
     df4_values = df4.values
     #df4_values.shape
-    
+        
     X_Model = df4_values[:,1:]
     #X_Model.shape
 
-    Y_hyp =  regr.predict(X_Model)
+    Y_hyp1 =  regr1.predict(X_Model)
+    Y_hyp2 = regr2.predict(X_Model)
 
-    df4['Predicted'] = Y_hyp
+    df4['Cost_W_Demand'] = Y_hyp1
+    df4['Cost_WO_Demand'] = Y_hyp2
+
+    #df4['kW_Cost'] =  df4['kW'] / df4['Cost_W_Demand']
 
     df4 = df4.reset_index()
     df4 = df4.drop(['index', 'Hour'], axis = 1)
 
     df4 = df4.set_index('Date_Time')
-    
-    json_data = df4.to_json(orient='index')
 
+    json_data = df4.to_json(orient='index')
     # redis stuff
     red = RedisManager('redis_ryan')
-    
+        
     red.setVar('analyzed_data', json_data)
-
 
 
