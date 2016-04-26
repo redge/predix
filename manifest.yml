@@ -1,8 +1,9 @@
 ---
 applications:
-- name: hello-python
-  memory: 256MB
-  disk_quota: 512MB
-  random-route: true
-  buildpack: python_buildpack
+- name: hello-python-analyze
+  memory: 1024MB
+  disk_quota: 1024MB
+  random-route: false
   command: python hello.py
+  services:
+    - redis_ryan

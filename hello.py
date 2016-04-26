@@ -1,82 +1,28 @@
-from bottle import Bottle, run
+from flask import Flask, Response
 import os
-from bottle import request, response
-from bottle import post, get, put, delete
-import re, json
+from scipy import special, optimize
+import pandas as pd
 
+from sklearn import preprocessing
+import numpy as np
+from analyze import get_data
 from r import RedisManager
-#from api import kws
 
-
-port = int(os.getenv('PORT', 64781))
-
-app = Bottle()
-
-# change this to your redis_service_name
-# NOTE: RedisManager is checking for redis-2 only. Modify if needed redis-1
 red = RedisManager('redis_ryan')
+get_data()
 
-@app.route('/hello')
-def hello():
-    vcap = os.getenv('VCAP_SERVICES')
-    return "Hello World!" + str(vcap)
+app = Flask(__name__)
 
-@app.route('/test_redis')
-def test_redis():
-    red.setVar('test_var', 'ok')
-    result = red.getVar('test_var')
-    return result
+port = int(os.getenv("PORT", 64781))
 
-
-_kws = set()
-
-@app.post('/kws')
-def creation_handler():
-    try:
-        # parse input data
-        try:
-            data = request.json()
-        except:
-            raise ValueError
-
-        if data is None:
-            raise ValueError
-
-
-        # check for existence
-        if kw in _kws:
-            raise KeyError
-
-    except ValueError:
-        # if bad request data, return 400 Bad Request
-        response.status = 400
-        return
+@app.route('/')
+def hello_world():
+    #X = np.array([[ 1., -1.,  2.],[ 2.,  0.,  0.],[ 0.,  1., -1.]])
+    #X_scaled = preprocessing.scale(X)
     
-    except KeyError:
-        # if name already exists, return 409 Conflict
-        response.status = 409
-        return
-
-    # add name
-    _names.add(name)
-    
-    # return 200 Success
-    response.headers['Content-Type'] = 'application/json'
-    return json.dumps({'name': name})
-
-@app.get('/kws')
-def listing_handler():
-    response.headers['Content-Type'] = 'application/json'
-    response.headers['Cache-Control'] = 'no-cache'
-    return json.dumps({'kws': list(_kws)})
-
-@app.put('kws')
-def update_handler(kw):
-    pass
-
-@app.delete('/kws/<id>')
-def delete_handler(kw):
-    pass
+    tmp = str(red.getVar('analyzed_data'))
+    resp = Response(response=tmp, status=200, mimetype="application/json")
+    return resp
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=port)

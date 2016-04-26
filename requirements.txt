@@ -1,4 +1,8 @@
 Flask
-bottle
 gunicorn
+scipy
+numpy
+scikit-learn
+pandas
 redis
+xlrd

@@ -10,8 +10,8 @@ class RedisManager:
         self.POOL = None
         if vcap_str and self.redis_name:
             self.vcap = json.loads(str(vcap_str))
-            if self.vcap['redis-2']:
-                for r in self.vcap['redis-2']:
+            if self.vcap['redis-1']:
+                for r in self.vcap['redis-1']:
                     if r['name'] == self.redis_name:
                         self.host = r['credentials']['host']
                         self.port = r['credentials']['port']
