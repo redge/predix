@@ -17,8 +17,8 @@ app = Flask(__name__)
 
 port = int(os.getenv("PORT", 64781))
 
-@app.route('/')
-@crossdomain(origin='true')
+@app.route('/', methods=["GET", "POST"])
+@crossdomain(origin='*')
 def hello_world():
     #X = np.array([[ 1., -1.,  2.],[ 2.,  0.,  0.],[ 0.,  1., -1.]])
     #X_scaled = preprocessing.scale(X)
