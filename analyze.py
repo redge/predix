@@ -6,6 +6,11 @@ from r import RedisManager
 
 
 def get_data():
+    import pandas as pd
+    import numpy as np
+    from scipy import stats
+    from sklearn import datasets, linear_model
+    from r import RedisManager
 
     df1 = pd.read_excel(open('E&T 5 min interval data_updated.xls','rb'), sheetname=0)
 
@@ -218,17 +223,26 @@ def get_data():
     df4['Cost_W_Demand'] = Y_hyp1
     df4['Cost_WO_Demand'] = Y_hyp2
 
-    #df4['kW_Cost'] =  df4['kW'] / df4['Cost_W_Demand']
-
     df4 = df4.reset_index()
-    df4 = df4.drop(['index', 'Hour'], axis = 1)
 
-    df4 = df4.set_index('Date_Time')
+    tsConsumed = df4[['Date_Time','Consumed_kW']].values
+    tsCostWD = df4[['Date_Time','Cost_W_Demand']].values
+    tsCostWOD = df4[['Date_Time','Cost_WO_Demand']].values
+    tsSolarP = df4[['Date_Time','Solar_kW/m^2']].values
+    tsSolarLux = df4[['Date_Time','Solar_LUX']].values
+    tsTemperature = df4[['Date_Time','Temperature_C']].values
+    tsPressure = df4[['Date_Time','Pressure_HPA']].values
+    tsHumidity = df4[['Date_Time','Humidity_%']].values
+    tsWindSpeed = df4[['Date_Time','Wind_Speed_M/S']].values
 
-    json_data = df4.to_json(orient='index')
-    # redis stuff
     red = RedisManager('redis_ryan')
         
-    red.setVar('analyzed_data', json_data)
-
-
+    red.setVar('tsConsumed', tsConsumed)
+    red.setVar('tsCostWD', tsCostWD)
+    red.setVar('tsCostWOD', tsCostWOD)
+    red.setVar('tsSolarP', tsSolarP)
+    red.setVar('tsSolarLux', tsSolarLux)
+    red.setVar('tsTemperature', tsTemperature)
+    red.setVar('tsPressure', tsPressure)
+    red.setVar('tsHumidity', tsHumidity)
+    red.setVar('tsWindSpeed', tsWindSpeed)

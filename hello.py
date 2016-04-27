@@ -20,7 +20,16 @@ def hello_world():
     #X = np.array([[ 1., -1.,  2.],[ 2.,  0.,  0.],[ 0.,  1., -1.]])
     #X_scaled = preprocessing.scale(X)
     
-    tmp = str(red.getVar('analyzed_data'))
+    tmp = str(red.getVar('tsConsumed'))
+    tmp = str(red.getVar('tsCostWD'))
+    tmp = str(red.getVar('tsCostWOD'))
+    tmp = str(red.getVar('tsSolarP'))
+    tmp = str(red.getVar('tsSolarLux'))
+    tmp = str(red.getVar('tsTemperature'))
+    tmp = str(red.getVar('tsPressure'))
+    tmp = str(red.getVar('tsHumidity'))
+    tmp = str(red.getVar('tsWindSpeed'))
+    
     resp = Response(response=tmp, status=200, mimetype="application/json")
     return resp
 
