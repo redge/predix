@@ -7,6 +7,8 @@ from sklearn import preprocessing
 import numpy as np
 from analyze import get_data
 from r import RedisManager
+from resp_decoration import crossdomain
+
 
 red = RedisManager('redis_ryan')
 get_data()
@@ -15,7 +17,8 @@ app = Flask(__name__)
 
 port = int(os.getenv("PORT", 64781))
 
-@app.route('/')
+@app.route('/', methods=["GET", "POST"])
+@crossdomain(origin='*')
 def hello_world():
     #X = np.array([[ 1., -1.,  2.],[ 2.,  0.,  0.],[ 0.,  1., -1.]])
     #X_scaled = preprocessing.scale(X)
