@@ -6,11 +6,6 @@ from r import RedisManager
 
 
 def get_data():
-    import pandas as pd
-    import numpy as np
-    from scipy import stats
-    from sklearn import datasets, linear_model
-    from r import RedisManager
 
     df1 = pd.read_excel(open('E&T 5 min interval data_updated.xls','rb'), sheetname=0)
 
@@ -198,7 +193,7 @@ def get_data():
 
     df3 = pd.read_excel(open('E&T 5 min interval data_updated.xls','rb'), sheetname=1)
     temp = pd.DatetimeIndex(df3['Time'])
-        
+
     df3['Date_Time'] = temp
     df3['Hour'] = temp.hour
     df3['kW'] = np.nan
@@ -213,7 +208,7 @@ def get_data():
 
     df4_values = df4.values
     #df4_values.shape
-        
+
     X_Model = df4_values[:,1:]
     #X_Model.shape
 
@@ -222,19 +217,18 @@ def get_data():
 
     df4['Cost_W_Demand'] = Y_hyp1
     df4['Cost_WO_Demand'] = Y_hyp2
+    df4['Consumed_kW'] = df4['kW']
+
 
     df4 = df4.reset_index()
 
- 
     df4['Solar_kW/m^2'] = 1
     df4['Solar_LUX'] = 1
     df4['Temperature_C'] = 1
     df4['Pressure_HPA'] = 1
     df4['Humidity_%'] = 1
     df4['Wind_Speed_M/S'] = 1
-    
-    
-    
+
     tsConsumed = df4[['Date_Time','Consumed_kW']].values
     tsCostWD = df4[['Date_Time','Cost_W_Demand']].values
     tsCostWOD = df4[['Date_Time','Cost_WO_Demand']].values
@@ -246,7 +240,7 @@ def get_data():
     tsWindSpeed = df4[['Date_Time','Wind_Speed_M/S']].values
 
     red = RedisManager('redis_ryan')
-        
+            
     red.setVar('tsConsumed', tsConsumed)
     red.setVar('tsCostWD', tsCostWD)
     red.setVar('tsCostWOD', tsCostWOD)
