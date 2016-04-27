@@ -225,6 +225,16 @@ def get_data():
 
     df4 = df4.reset_index()
 
+ 
+    df4['Solar_kW/m^2'] = 1
+    df4['Solar_LUX'] = 1
+    df4['Temperature_C'] = 1
+    df4['Pressure_HPA'] = 1
+    df4['Humidity_%'] = 1
+    df4['Wind_Speed_M/S'] = 1
+    
+    
+    
     tsConsumed = df4[['Date_Time','Consumed_kW']].values
     tsCostWD = df4[['Date_Time','Cost_W_Demand']].values
     tsCostWOD = df4[['Date_Time','Cost_WO_Demand']].values
