@@ -89,7 +89,7 @@ def hello_world9():
 @crossdomain(origin='*')
 def hello_world10():
     
-    tmp = json.dumps(red.getVar('tsConsumed'))
+    tmp = json.dumps(red.getVar('tsFromExcel'))
     resp = Response(response=tmp, status=200, mimetype="application/json")
     return resp    
 
