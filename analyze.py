@@ -3,6 +3,18 @@ import numpy as np
 from scipy import stats
 from sklearn import datasets, linear_model
 from r import RedisManager
+from datetime import datetime
+
+#def get_py_datetime(x):
+#    dt = datetime.strptime(str(x), '%y-%m-%d %H:%M:%S)
+    
+def change_time(x):
+    """ Change 1st value to epoch """
+    try:
+        x[0] = (datetime.strptime(str(x[0]).split('.')[0], '%Y-%m-%d %H:%M:%S')).strftime('%s')
+    except:
+        pass
+    return x
 
 
 def get_data():
@@ -228,7 +240,7 @@ def get_data():
     df4['Pressure_HPA'] = 1
     df4['Humidity_%'] = 1
     df4['Wind_Speed_M/S'] = 1
-
+    
     tsConsumed = df4[['Date_Time','Consumed_kW']].values
     tsCostWD = df4[['Date_Time','Cost_W_Demand']].values
     tsCostWOD = df4[['Date_Time','Cost_WO_Demand']].values
@@ -238,6 +250,16 @@ def get_data():
     tsPressure = df4[['Date_Time','Pressure_HPA']].values
     tsHumidity = df4[['Date_Time','Humidity_%']].values
     tsWindSpeed = df4[['Date_Time','Wind_Speed_M/S']].values
+
+    tsConsumed = np.apply_along_axis(change_time, axis=1, arr=tsConsumed)
+    tsCostWD = np.apply_along_axis(change_time, axis=1, arr=tsCostWD)
+    tsCostWOD = np.apply_along_axis(change_time, axis=1, arr=tsCostWOD)
+    tsSolarP = np.apply_along_axis(change_time, axis=1, arr=tsSolarP)
+    tsSolarLux = np.apply_along_axis(change_time, axis=1, arr=tsSolarLux)
+    tsTemperature = np.apply_along_axis(change_time, axis=1, arr=tsTemperature)
+    tsPressure = np.apply_along_axis(change_time, axis=1, arr=tsPressure)
+    tsHumidity = np.apply_along_axis(change_time, axis=1, arr=tsHumidity)
+    tsWindSpeed = np.apply_along_axis(change_time, axis=1, arr=tsWindSpeed)
 
     red = RedisManager('redis_ryan')
             
