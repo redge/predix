@@ -13,6 +13,14 @@ app = Flask(__name__)
 
 port = int(os.getenv("PORT", 64781))
 
+@app.route('/tsFromExcel', methods=["GET", "POST"])
+@crossdomain(origin='*')
+def hello_world1():
+    
+    tmp = json.dumps(red.getVar('tsConsumed'))
+    resp = Response(response=tmp, status=200, mimetype="application/json")
+    return resp
+
 @app.route('/tsConsumed', methods=["GET", "POST"])
 @crossdomain(origin='*')
 def hello_world1():

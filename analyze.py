@@ -239,34 +239,10 @@ def get_data():
     df4['Humidity_%'] = 1
     df4['Wind_Speed_M/S'] = 1
     
-    tsConsumed = df4[['Date_Time','Consumed_kW']].values
-    tsCostWD = df4[['Date_Time','Cost_W_Demand']].values
-    tsCostWOD = df4[['Date_Time','Cost_WO_Demand']].values
-    tsSolarP = df4[['Date_Time','Solar_kW/m^2']].values
-    tsSolarLux = df4[['Date_Time','Solar_LUX']].values
-    tsTemperature = df4[['Date_Time','Temperature_C']].values
-    tsPressure = df4[['Date_Time','Pressure_HPA']].values
-    tsHumidity = df4[['Date_Time','Humidity_%']].values
-    tsWindSpeed = df4[['Date_Time','Wind_Speed_M/S']].values
+    df4 = df4[['Date_Time','Consumed_kW', 'Cost_W_Demand', 'Cost_WO_Demand', 'Solar_kW/m^2', 'Solar_LUX', 'Temperature_C', 'Pressure_HPA' ,'Humidity_%' ,'Wind_Speed_M/S']]
 
-    tsConsumed = np.apply_along_axis(change_time, axis=1, arr=tsConsumed)
-    tsCostWD = np.apply_along_axis(change_time, axis=1, arr=tsCostWD)
-    tsCostWOD = np.apply_along_axis(change_time, axis=1, arr=tsCostWOD)
-    tsSolarP = np.apply_along_axis(change_time, axis=1, arr=tsSolarP)
-    tsSolarLux = np.apply_along_axis(change_time, axis=1, arr=tsSolarLux)
-    tsTemperature = np.apply_along_axis(change_time, axis=1, arr=tsTemperature)
-    tsPressure = np.apply_along_axis(change_time, axis=1, arr=tsPressure)
-    tsHumidity = np.apply_along_axis(change_time, axis=1, arr=tsHumidity)
-    tsWindSpeed = np.apply_along_axis(change_time, axis=1, arr=tsWindSpeed)
-
+    tsFromExcel = np.apply_along_axis(change_time, axis=1, arr=df4.values)
+    
     red = RedisManager('redis_ryan')
             
-    red.setVar('tsConsumed', tsConsumed.tolist())
-    red.setVar('tsCostWD', tsCostWD.tolist())
-    red.setVar('tsCostWOD', tsCostWOD.tolist())
-    red.setVar('tsSolarP', tsSolarP.tolist())
-    red.setVar('tsSolarLux', tsSolarLux.tolist())
-    red.setVar('tsTemperature', tsTemperature.tolist())
-    red.setVar('tsPressure', tsPressure.tolist())
-    red.setVar('tsHumidity', tsHumidity.tolist())
-    red.setVar('tsWindSpeed', tsWindSpeed.tolist())
+    red.setVar('tsFromExcel', tsFromExcel.tolist())
