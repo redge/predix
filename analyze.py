@@ -9,7 +9,7 @@ from datetime import datetime
 def change_time(x):
     """ Change 1st value to epoch """
     try:
-        x[0] = (datetime.strptime(str(x[0]).split('.')[0], '%Y-%m-%d %H:%M:%S')).strftime('%s') + '000'
+        x[0] = int((datetime.strptime(str(x[0]).split('.')[0], '%Y-%m-%d %H:%M:%S')).strftime('%s') + '000')
     except:
         pass
     return x
