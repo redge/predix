@@ -5,13 +5,11 @@ from sklearn import datasets, linear_model
 from r import RedisManager
 from datetime import datetime
 
-#def get_py_datetime(x):
-#    dt = datetime.strptime(str(x), '%y-%m-%d %H:%M:%S)
     
 def change_time(x):
     """ Change 1st value to epoch """
     try:
-        x[0] = (datetime.strptime(str(x[0]).split('.')[0], '%Y-%m-%d %H:%M:%S')).strftime('%s')
+        x[0] = (datetime.strptime(str(x[0]).split('.')[0], '%Y-%m-%d %H:%M:%S')).strftime('%s') + '000'
     except:
         pass
     return x
