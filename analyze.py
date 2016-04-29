@@ -4,6 +4,8 @@ from scipy import stats
 from sklearn import datasets, linear_model
 from r import RedisManager
 from datetime import datetime
+import demjson
+import json
 
     
 def change_time(x):
@@ -231,39 +233,55 @@ def get_data():
 
 
     df4 = df4.reset_index()
-
-    df4['Solar_kW/m^2'] = 1
-    df4['Solar_LUX'] = 1
-    df4['Temperature_C'] = 1
-    df4['Pressure_HPA'] = 1
-    df4['Humidity_%'] = 1
-    df4['Wind_Speed_M/S'] = 1
     
-    df4 = df4[['Date_Time','Consumed_kW', 'Cost_W_Demand', 'Cost_WO_Demand', 'Solar_kW/m^2', 'Solar_LUX', 'Temperature_C', 'Pressure_HPA' ,'Humidity_%' ,'Wind_Speed_M/S']]
+    df4 = df4[['Date_Time', 'Consumed_kW', 'Cost_W_Demand', 'Cost_WO_Demand']]
 
     tsConsumed = df4[['Date_Time','Consumed_kW']].values
     tsCostWD = df4[['Date_Time','Cost_W_Demand']].values
     tsCostWOD = df4[['Date_Time','Cost_WO_Demand']].values
-    tsSolarP = df4[['Date_Time','Solar_kW/m^2']].values
-    tsSolarLux = df4[['Date_Time','Solar_LUX']].values
-    tsTemperature = df4[['Date_Time','Temperature_C']].values
-    tsPressure = df4[['Date_Time','Pressure_HPA']].values
-    tsHumidity = df4[['Date_Time','Humidity_%']].values
-    tsWindSpeed = df4[['Date_Time','Wind_Speed_M/S']].values
 
     tsConsumed = np.apply_along_axis(change_time, axis=1, arr=tsConsumed)
     tsCostWD = np.apply_along_axis(change_time, axis=1, arr=tsCostWD)
     tsCostWOD = np.apply_along_axis(change_time, axis=1, arr=tsCostWOD)
-    tsSolarP = np.apply_along_axis(change_time, axis=1, arr=tsSolarP)
-    tsSolarLux = np.apply_along_axis(change_time, axis=1, arr=tsSolarLux)
-    tsTemperature = np.apply_along_axis(change_time, axis=1, arr=tsTemperature)
-    tsPressure = np.apply_along_axis(change_time, axis=1, arr=tsPressure)
-    tsHumidity = np.apply_along_axis(change_time, axis=1, arr=tsHumidity)
-    tsWindSpeed = np.apply_along_axis(change_time, axis=1, arr=tsWindSpeed)
+  
+    tsFromExcel = np.array([tsConsumed, tsCostWD, tsCostWOD])
     
-    
-    tsFromExcel = np.array([tsConsumed, tsCostWD, tsCostWOD, tsSolarP, tsSolarLux, tsTemperature, tsPressure, tsHumidity, tsWindSpeed])
+    filename = 'data.dat'
+
+    maping = []
+
+    for row in open(filename, 'r'):
+
+        maping.append(demjson.decode(row)) 
+
+    df5 = pd.DataFrame(maping)
+
+
+    df5['timestamp'] =  pd.DatetimeIndex(df5['timestamp'])
+    df5['lux'] = df5['lux'].astype(float)
+    df5['solar'] = df5['solar'].astype(float)
+    df5['temperature'] = df5['temperature'].astype(float)
+    df5['humidity'] = df5['humidity'].astype(float)
+    df5['wind'] = df5['wind'].astype(float)
+    df5['pressure'] = df5['pressure'].astype(float)
+
+    lux = df5[['timestamp','lux']].values
+    solar = df5[['timestamp','solar']].values
+    temperature = df5[['timestamp','temperature']].values
+    humidity = df5[['timestamp','humidity']].values
+    wind = df5[['timestamp','wind']].values
+    pressure = df5[['timestamp','pressure']].values
+
+    tsLux = np.apply_along_axis(change_time, axis=1, arr=lux)
+    tsSolar = np.apply_along_axis(change_time, axis=1, arr=solar)
+    tsTemperature = np.apply_along_axis(change_time, axis=1, arr=temperature)
+    tsHumidity = np.apply_along_axis(change_time, axis=1, arr=humidity)
+    tsWind = np.apply_along_axis(change_time, axis=1, arr=wind)
+    tsPressure = np.apply_along_axis(change_time, axis=1, arr=pressure)
+
+    tsFromDat = np.array([tsLux, tsSolar, tsTemperature, tsHumidity, tsWind, tsPressure])
     
     red = RedisManager('redis_ryan')
 
     red.setVar('tsFromExcel', tsFromExcel.tolist())
+    red.setVar('tsFromDat', tsFromDat.tolist())
