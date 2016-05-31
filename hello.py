@@ -99,7 +99,15 @@ def hello_world11():
     
     tmp = json.dumps(red.getVar('tsFromDat'))
     resp = Response(response=tmp, status=200, mimetype="application/json")
-    return resp   
+    return resp
+
+@app.route('/tsFromDataSet', methods=["GET", "POST"])
+@crossdomain(origin='*')    
+def hello_world12():
+    
+    tmp = json.dumps(red.getVar('tsFromDataSet'))
+    resp = Response(response=tmp, status=200, mimetype="application/json")
+    return resp
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=port)

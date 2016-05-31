@@ -281,7 +281,25 @@ def get_data():
 
     tsFromDat = np.array([tsLux, tsSolar, tsTemperature, tsHumidity, tsWind, tsPressure])
     
+    #dataset munged from uci
+    house = pd.read_csv('house.csv')
+    
+    tsActive = house[['Date_Time','Global_Active_kW']].values
+    tsReactive = house[['Date_Time','Global_Reactive_kW']].values
+    tsIntensity = house[['Date_Time','Global_Intensity_A']].values
+    tsVoltage = house[['Date_Time','Voltage']].values
+    
+    tsActive = np.apply_along_axis(change_time, axis=1, arr=tsActive)
+    tsReactive = np.apply_along_axis(change_time, axis=1, arr=tsReactive)
+    tsIntensity = np.apply_along_axis(change_time, axis=1, arr=tsIntensity)
+    tsVoltage = np.apply_along_axis(change_time, axis=1, arr=tsVoltage)
+    
+    tsFromDataSet = np.array([tsActive, tsReactive, tsIntensity, tsVoltage])
+    
     red = RedisManager('redis_ryan')
 
     red.setVar('tsFromExcel', tsFromExcel.tolist())
     red.setVar('tsFromDat', tsFromDat.tolist())
+    
+    #uci dataset
+    red.setVar('tsFromDataSet', tsFromDataSet.tolist())
